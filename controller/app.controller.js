@@ -1,70 +1,112 @@
 import express from 'express'
 import { UserModel } from '../models/User.js'
+import { upload } from '../config/multer.js'
+import { LastRecentModel } from '../models/LastRecent.js'
 
 const app = express.Router()
 
 export const getHome = app.get('/', async (req, res) => {
   const user = req.session.email
   const isAdmin = req.session.isAdmin
+  const findUser = await UserModel.findOne({ email: user })
+  const lastRecent = await LastRecentModel.find({});
+  const totalSalaries = await UserModel.find({});
+  const top5Performers = await UserModel.find({})
+    .sort({ performans: -1 })
+    .limit(5);
+  const userSalary = await UserModel.findOne({ email: user })
+  const totalSalary = totalSalaries.reduce((acc, data) => acc + data.salary, 0);
+  const totalUser = (await UserModel.find({})).length
   if (user) {
-    res.render('home', { user, isAdmin })
+    res.render('home', { user: findUser, isAdmin, totalUser, lastRecent, userSalary, totalSalary,top5Performers })
   }
   else {
-    res.render('home', { user: "", isAdmin: "" })
+    res.redirect('/login')
   }
 
 })
 export const getRegister = app.get('/register', async (req, res) => {
-  res.render('register')
+  const { message } = req.query
+  res.render('register', { message })
 })
 export const getLogin = app.get('/login', async (req, res) => {
-  res.render('login')
+  const { message } = req.query
+  res.render('login', { message })
 })
 
-export const postRegister = app.post('/register', async (req, res) => {
-  const { name, departman, email, phone, password } = req.body
-  UserModel.create({ name, departman, email, phone, password }).then(() => {
-    res.redirect('/login?message=success')
-  })
+export const postRegister = app.post('/register', upload.single("image"), async (req, res) => {
+  const { name, email, phone, passwordConfirm, password } = req.body
+  let filename;
+  if (!req.file) {
+    res.redirect('/login?message=notimage')
+  }
+  else {
+    filename = req.file.filename
+    if (password == passwordConfirm) {
+      UserModel.create({ name, email, phone, password, image: filename ? filename : "" }).then(() => {
+        res.redirect('/login?message=success')
+      })
+    }
+    else {
+      res.redirect('/register?message=nomatch')
+    }
+  }
+
+
 })
 export const postLogin = app.post('/login', async (req, res) => {
   const { email, password } = req.body
   const user = await UserModel.find({ email, password })
   if (user.length > 0) {
+    await LastRecentModel.create({ name: user[0].name, email: user[0].email, image: user[0].image, type: "LOGIN" })
     req.session.email = user[0].email
     req.session.isAdmin = user[0].isAdmin
     res.redirect('/')
   }
   else {
-    res.redirect('/register')
+    res.redirect('/register?message=nouser')
   }
 })
 export const logout = app.get('/logout', async (req, res) => {
-  req.session.destroy()
-  res.redirect('/')
+  if (req.session.email) {
+    const user = await UserModel.findOne({ email: req.session.email })
+    await LastRecentModel.create({ name: user.name, email: user.email, image: user.image, type: "LOGOUT" })
+    req.session.destroy()
+    res.redirect('/')
+  }
+
 })
 export const getProfile = app.get('/profile', async (req, res) => {
   const email = req.session.email
   const isAdmin = req.session.isAdmin
+  const { message } = req.query
   if (email) {
     const user = await UserModel.findOne({ email })
-    res.render('user-update', { user, isAdmin })
+    res.render('profile', { user, isAdmin, message: message ? message : "" })
   }
   else {
     res.redirect('/?message=no_user')
   }
 })
-export const postProfile = app.post('/profile', async (req, res) => {
-  const { name, departman, email, phone, password } = req.body
-  await UserModel.updateOne({ email }, { name, email, departman, phone, password })
-  res.redirect('/profile?message=success_update')
+export const postProfile = app.post('/profile', upload.single("image"), async (req, res) => {
+  const { name, email, phone } = req.body
+  let filename;
+  if (!req.file) {
+    res.redirect('/profile?message=notimage')
+  }
+  else {
+    filename = req.file.filename
+    await UserModel.updateOne({ email }, { name, email, image: filename, phone }).catch(err => console.log(err))
+    res.redirect('/?message=success_update')
+  }
+
 })
 export const getSalary = app.get('/salary', async (req, res) => {
   const user = req.session.email
   const isAdmin = req.session.isAdmin
   if (user) {
     const users = await UserModel.find({})
-    res.render('salary-table', { user, users, isAdmin:isAdmin ? isAdmin : '' })
+    res.render('salary-list', { user, users, isAdmin: isAdmin ? isAdmin : '' })
   }
   else {
     res.redirect('/?message=no_user')
@@ -84,11 +126,11 @@ export const getUpdateSalary = app.get('/salary-update', async (req, res) => {
 
 })
 export const postUpdateSalary = app.post('/salary-update', async (req, res) => {
-  const { name, departman, email, phone, salary } = req.body
+  const { name, email, salary } = req.body
   const user = req.session.email
   const isAdmin = req.session.isAdmin
   if (user && isAdmin) {
-    const users = await UserModel.updateOne({ email }, { name, departman, email, phone, salary })
+    const users = await UserModel.updateOne({ email }, { name, email, salary })
     res.redirect('/salary')
   }
   else {
@@ -113,7 +155,7 @@ export const getPersonal = app.get('/personal', async (req, res) => {
   const isAdmin = req.session.isAdmin
   if (user && isAdmin) {
     const users = await UserModel.find({})
-    res.render('personal-table', { user, users, isAdmin })
+    res.render('personal-list', { user, users, isAdmin })
   }
   else {
     res.redirect('/?message=no_user')
@@ -133,11 +175,11 @@ export const getUpdatePersonal = app.get('/personal-update', async (req, res) =>
 
 })
 export const postUpdatePersonal = app.post('/personal-update', async (req, res) => {
-  const { name, departman, email, phone } = req.body
+  const { name, email, phone } = req.body
   const user = req.session.email
   const isAdmin = req.session.isAdmin
   if (user && isAdmin) {
-    const users = await UserModel.updateOne({ email }, { name, departman, email, phone })
+    const users = await UserModel.updateOne({ email }, { name, email, phone })
     res.redirect('/personal')
   }
   else {
@@ -163,7 +205,7 @@ export const getPerformans = app.get('/performans', async (req, res) => {
   const isAdmin = req.session.isAdmin
   if (user) {
     const users = await UserModel.find({})
-    res.render('performans-table', { user, users, isAdmin: isAdmin ? isAdmin : "" })
+    res.render('performans-list', { user, users, isAdmin: isAdmin ? isAdmin : "" })
   }
   else {
     res.redirect('/?message=no_user')
@@ -183,11 +225,11 @@ export const getUpdatePerformans = app.get('/performans-update', async (req, res
 
 })
 export const postUpdatePerformans = app.post('/performans-update', async (req, res) => {
-  const { name, departman, email, phone, salary } = req.body
+  const { name, email, performans } = req.body
   const user = req.session.email
   const isAdmin = req.session.isAdmin
   if (user && isAdmin) {
-    const users = await UserModel.updateOne({ email }, { name, departman, email, phone, salary })
+    const users = await UserModel.updateOne({ email }, { name, performans, email })
     res.redirect('/performans')
   }
   else {

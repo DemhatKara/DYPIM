@@ -6,18 +6,14 @@ import { getHome } from './controller/app.controller.js'
 import path from 'path'
 import session from 'express-session'
 import { UserModel } from './models/User.js'
-
 UserModel.find({ email: 'demhat@gmail.com' }).then(user => {
   if (user.length > 0) {
-    UserModel.updateOne({ email: 'demhat@gmail.com' }, { isAdmin: true })
+    UserModel.updateOne({ email: 'demhat@gmail.com' }, { isAdmin: true,salary:100 })
   }
   else {
     UserModel.create({ name: 'demhat', email: 'demhat@gmail.com', password: '123', departman: 'yazılım', phone: '05555555555', isAdmin: true })
   }
 })
-
-
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename)
@@ -41,6 +37,6 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use('/', getHome)
 
 app.listen(3000, () => {
-  mongoDBConnection().then(() => console.log("database connection")).catch(err => console.log(err))
+  mongoDBConnection().then((data) => console.log("database connection")).catch(err => console.log(err))
   console.log("server listen")
 })

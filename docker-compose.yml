@@ -8,7 +8,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
     volumes:
-      - mongo-data:/data/db
+      - mongo-datadb:/data/db
 
   mongo-express:
     image: mongo-express:latest
@@ -22,5 +22,5 @@ services:
 
 # Define named volumes
 volumes:
-  mongo-data:
+  mongo-datadb:
     driver: local

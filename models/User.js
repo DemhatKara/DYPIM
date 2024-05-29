@@ -6,18 +6,19 @@ const User = new Schema({
     email: String,
     phone: String,
     password: String,
-    salary:{
-        type:Number,
-        default:0
+    image: String,
+    salary: {
+        type: Number,
+        default: 0
     },
     performans: {
-        type:Number,
-        default:0
+        type: Number,
+        default: 0
     },
-    isAdmin:{
-        type:Boolean,
-        default:false
+    isAdmin: {
+        type: Boolean,
+        default: false
     }
 })
 
-export const UserModel = mongoose.model('User',User)
+export const UserModel = mongoose.model('User', User)

@@ -2,73 +2,87 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <title>Kayit</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <title>DYPIM</title>
+
+    <link rel="shortcut icon" href="assets/img/favicon.png">
+
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="assets/plugins/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="assets/plugins/fontawesome/css/all.min.css">
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!--[if lt IE 9]>
+			<script src="assets/js/html5shiv.min.js"></script>
+			<script src="assets/js/respond.min.js"></script>
+		<![endif]-->
 </head>
 
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-      <a class="navbar-brand" href="#">PB</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-              <li class="nav-item">
-                  <a class="nav-link" aria-current="page" href="/">Anasayfa</a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="#">Personel Bilgileri</a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="#">Maaş Bilgileri</a>
-              </li>
-          </ul>
-          <form class="d-flex ms-auto">
-              <a class="nav-link form-control m-2" href="/register">Kayıt</a>
-              <a class="nav-link form-control m-2" href="/login">Giriş</a>
-              <a class="nav-link form-control m-2" href="/adminLogin">Admin</a>
-          </form>
-      </div>
-  </div>
-</nav>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-3"></div>
-      <div class="col-md-6 mt-5">
-        <form action="/register" method="post">
-          <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Ad Soyad</label>
-            <input type="text" class="form-control" name="name"  id="exampleInputEmail1" aria-describedby="emailHelp">
-          </div>
-          <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Departman</label>
-            <input type="text" class="form-control" name="departman" id="exampleInputEmail1" aria-describedby="emailHelp">
-          </div>
-          <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Email</label>
-            <input type="email" class="form-control" name="email" id="exampleInputEmail1" aria-describedby="emailHelp">
-          </div>
-          <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Telefon</label>
-            <input type="text" class="form-control" name="phone" id="exampleInputEmail1" aria-describedby="emailHelp">
-          </div>
-          <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Şifre</label>
-            <input type="password" class="form-control" name="password" id="exampleInputEmail1" aria-describedby="emailHelp">
-          </div>
-          <button type="submit" class="btn btn-primary">Kayıt Ol</button>
-        </form>
-      </div>
-      <div class="col-md-3"></div>
+<body>
 
+    <div class="main-wrapper login-body">
+        <div class="login-wrapper">
+            <div class="container">
+               
+                <img class="img-fluid logo-dark mb-2" src="assets/img/logo.jpg" alt="Logo">
+                <% if(message) {%>
+                <div class="alert alert-danger w-25 text-center" style="margin-left: 21rem;margin-top: 20px;">
+                    User Not Found
+                </div>
+                <% }%>
+                <div class="loginbox">
+
+                    <div class="login-right">
+
+                        <div class="login-right-wrap">
+                            <h1>Register</h1>
+                            <p class="account-subtitle">Access to our dashboard</p>
+
+                            <form action="/register" enctype="multipart/form-data" method="post">
+                                <div class="form-group">
+                                    <label class="form-control-label">Image</label>
+                                    <input name="image" class="form-control" type="file">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Name</label>
+                                    <input name="name" class="form-control" type="text">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Email Address</label>
+                                    <input name="email" class="form-control" type="text">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Phone</label>
+                                    <input name="phone" class="form-control" type="text">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Password</label>
+                                    <div class="pass-group">
+                                        <input name="password" type="password" class="form-control pass-input">
+                                        <span class="fas fa-eye toggle-password"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Password Confirm</label>
+                                    <div class="pass-group">
+                                        <input name="passwordConfirm" type="password" class="form-control pass-input">
+                                        <span class="fas fa-eye toggle-password"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-0">
+                                    <button class="btn btn-lg btn-block btn-primary" type="submit">Register</button>
+                                </div>
+                            </form>
+
+                            <div class="text-center dont-have">Already have an account? <a href="/login">Login</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-</body>
-
-</html>
+    <%- include("partials/_footer.ejs") -%>
